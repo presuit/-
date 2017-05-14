@@ -3,7 +3,7 @@
 using namespace std;
 
 // 클래스 선언
-
+//test
 class LifeGame
 {
 public:
