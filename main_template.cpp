@@ -26,8 +26,8 @@ public:
 private:
 	int width;
 	int height;
-	bool *current_cells;
-	bool *next_cells;
+	bool **current_cells;
+	bool **next_cells;
 };
 
 // 멤버 함수 정의
@@ -40,8 +40,14 @@ LifeGame::LifeGame()
 	next_cells = nullptr;
 }
 
+LifeGame::~LifeGame() 
+{
+	delete[] current_cells;
+}
+
 void LifeGame::initialize(int w, int h)
 {
+
 	if (current_cells != nullptr) 
 	{
 		delete[] current_cells;
@@ -53,14 +59,14 @@ void LifeGame::initialize(int w, int h)
 		next_cells = nullptr;
 	}
 
-	current_cells = new bool[h];
+	current_cells = new bool*[h];
 
 	for (int i = 0; i < h; i++) 
 	{
 		current_cells[i] = new bool[w];
 	}
 
-	next_cells = new bool[h];
+	next_cells = new bool*[h];
 
 	for (int i = 0; i < h; i++)
 	{
