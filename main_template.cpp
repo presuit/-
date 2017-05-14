@@ -7,135 +7,22 @@ using namespace std;
 class LifeGame
 {
 public:
-	LifeGame();
-	~LifeGame();
-	
-	void initialize(int w, int h);
-	
-	int getWidth() const;
-	int getHeight() const;
-
-	void setState(int i, int j, bool s);
-	bool getState(int i, int j) const;
-
-	void clear();
-	void update();
-
-	friend ostream &operator <<(ostream &os, const LifeGame &game);
 
 private:
-	int width;
-	int height;
-	bool *current_cells;
-	bool *next_cells;
 };
+
+
 
 // 멤버 함수 정의
 
-LifeGame::LifeGame() 
-{
-	width = 0;
-	height = 0;
-	current_cells = nullptr;
-	next_cells = nullptr;
-}
 
-void LifeGame::initialize(int w, int h)
-{
-	if (current_cells != nullptr) 
-	{
-		delete[] current_cells;
-		current_cells = nullptr;
-	}
-	if (next_cells != nullptr)
-	{
-		delete[] next_cells;
-		next_cells = nullptr;
-	}
 
-	current_cells = new bool[h];
 
-	for (int i = 0; i < h; i++) 
-	{
-		current_cells[i] = new bool[w];
-	}
 
-	next_cells = new bool[h];
 
-	for (int i = 0; i < h; i++)
-	{
-		next_cells[i] = new bool[w];
-	}
-
-	for (int j = 0; j < h; j++) 
-	{
-		for (int i = 0; i < w; j++) 
-		{
-			*(current_cells + j*w + i) = false;
-			*(next_cells + j*w + i) = false;
-		}
-	}
-
-	width = w;
-	height = h;
-}
-
-int LifeGame::getWidth() const
-{
-	return width;
-}
-
-int LifeGame::getHeight() const
-{
-	return height;
-}
-
-void LifeGame::setState(int i, int j, bool s) 
-{
-	*(current_cells + j*width + i) = s;
-}
-
-bool LifeGame::getState(int i, int j) const 
-{
-	return *(current_cells + j* width + i);
-}
-
-void LifeGame::clear() 
-{
-	for (int j = 0; j < height; j++) 
-	{
-		for (int i = 0; i < width; i++) 
-		{
-			*(current_cells + j*width + i) = false;
-		}
-	}
-}
-
-void LifeGame::update() 
-{
-	
-}
 // friend 함수 정의
 
-ostream &operator <<(ostream &os, const LifeGame &game) 
-{
-	cout << "The current game state is : " << endl << endl;
-	for (int j = 0; j < game.height; j++) 
-	{
-		for (int i = 0; i < game.width; i++) 
-		{
-			if (game.getState(j, i) == true) 
-			{
-				cout << "O" << " ";
-			}
-			if (game.getState(j, i) == false) 
-			{
-				cout << "." << " ";
-			}
-		}
-		cout << endl;
-	}
-}
+
 
 
 
