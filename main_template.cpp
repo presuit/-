@@ -115,11 +115,16 @@ void LifeGame::clear()
 
 void LifeGame::update() 
 {
+	int count = 0;
+
 	for (int i = 0; i < width; i++) 
 	{
 		for (int j = 0; j < height; j++) 
 		{
-			
+			if (getState(i, j) == true) 
+			{
+
+			}
 		}
 	}
 }
