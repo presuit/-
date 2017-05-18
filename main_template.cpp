@@ -1,3 +1,4 @@
+//2016726078 √÷øµ»£
 #include <iostream>
 #include <cstdlib>
 using namespace std;
@@ -45,12 +46,14 @@ LifeGame::~LifeGame()
 {
 	delete[] current_cells;
 	delete[] next_cells;
+	current_cells = nullptr;
+	next_cells = nullptr;
 }
 
 void LifeGame::initialize(int w, int h)
 {
 
-	if (current_cells != nullptr)
+	if (current_cells != nullptr || next_cells != nullptr)
 	{
 		delete[] current_cells;
 		current_cells = nullptr;
