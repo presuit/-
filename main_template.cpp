@@ -61,21 +61,21 @@ void LifeGame::initialize(int w, int h)
 		next_cells = nullptr;
 	}
 
-	current_cells = new bool *[w];
-	next_cells = new bool *[w];
+	current_cells = new bool *[h];
+	next_cells = new bool *[h];
 
-	for (int i = 0; i < w; i++)
+	for (int j = 0; j < h; j++)
 	{
-		current_cells[i] = new bool[h];
-		next_cells[i] = new bool[h];
+		current_cells[j] = new bool[w];
+		next_cells[j] = new bool[w];
 	}
 
-	for (int i = 0; i < w; i++)
+	for (int j = 0; j < h; j++)
 	{
-		for (int j = 0; j < h; j++)
+		for (int i = 0; i < w; i++)
 		{
-			current_cells[i][j] = false;
-			next_cells[i][j] = false;
+			current_cells[j][i] = false;
+			next_cells[j][i] = false;
 		}
 	}
 
@@ -95,21 +95,22 @@ int LifeGame::getHeight() const
 
 void LifeGame::setState(int i, int j, bool s)
 {
-	current_cells[i][j] = s;
+	current_cells[j][i] = s;
 }
 
 bool LifeGame::getState(int i, int j) const
 {
-	return current_cells[i][j];
+	return current_cells[j][i];
 }
 
 void LifeGame::clear()
 {
-	for (int i = 0; i < width; i++)
+	for (int j = 0; j < height; j++)
 	{
-		for (int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
 		{
-			current_cells[i][j] = false;
+			current_cells[j][i] = false;
+			next_cells[j][i] = false;
 		}
 	}
 }
@@ -119,9 +120,9 @@ void LifeGame::update()
 	int count = 0;
 	int countD = 0;
 
-	for (int i = 0; i < width; i++)
+	for (int j = 0; j < height; j++)
 	{
-		for (int j = 0; j < height; j++)
+		for (int i = 0; i < width; i++)
 		{
 			count = 0;
 			countD = 0;
@@ -129,39 +130,39 @@ void LifeGame::update()
 			if (getState(i, j) == true)
 			{
 				//top_left
-				if (i - 1 >= 0 && i - 1 < width && j - 1 >= 0 && j - 1 < height)
+				if (j - 1 >= 0 && j - 1 < height && i - 1 >= 0 && i - 1 < width)
 				{
-					if (getState(i - 1, j - 1) == true)
+					if (getState(i-1, j-1) == true)
 					{
 						count++;
 					}
 				}
-				else 
+				else
 				{
-					//i-1은 범위에 있는 경우
-					if (i -1 >= 0 && i - 1 < width) 
+					//j-1은 범위에 있는 경우
+					if (j - 1 >= 0 && j - 1 < height)
 					{
 						//top까지는 갈 수 있는데 left가 범위를 벗어나는 경우
-						if (getState(i -1, height -1) == true) 
+						if (getState(width -1, j -1) == true)
 						{
 							count++;
 						}
 					}
-					//i-1은 범위에 없는 경우
-					else 
+					//j-1은 범위에 없는 경우
+					else
 					{
-						//j-1은 범위에 있는 경우
-						if (j -1 >= 0 && j -1 < height) 
+						//i-1은 범위에 있는 경우
+						if (i - 1 >= 0 && i - 1 < width)
 						{
-							if (getState(width - 1, j - 1) == true)
+							if (getState(i -1, height -1) == true)
 							{
 								count++;
 							}
 						}
-						//j-1은 범위에 없는 경우
-						else 
+						//i-1은 범위에 없는 경우
+						else
 						{
-							if (getState(width -1, height -1) == true) 
+							if (getState(width -1, height -1) == true)
 							{
 								count++;
 							}
@@ -169,53 +170,53 @@ void LifeGame::update()
 					}
 				}
 				//top
-				if (i - 1 >= 0 && i - 1 < width && j >= 0 && j < height)
+				if (j - 1 >= 0 && j - 1 < height && i >= 0 && i < width)
 				{
-					if (getState(i - 1, j) == true)
+					if (getState(i, j-1) == true)
 					{
 						count++;
 					}
 				}
-				else 
+				else
 				{
-					if (getState(width -1, j) == true) 
+					if (getState(i, height -1) == true)
 					{
 						count++;
 					}
 				}
 				//top_right
-				if (i - 1 >= 0 && i - 1 < width && j + 1 >= 0 && j + 1 < height)
+				if (j - 1 >= 0 && j - 1 < height && i + 1 >= 0 && i + 1 < width)
 				{
-					if (getState(i - 1, j + 1) == true)
+					if (getState(i+1, j-1) == true)
 					{
 						count++;
 					}
 				}
-				else 
+				else
 				{
-					//i -1 있는 경우 (= top은 가능하지만, right가 불가능한 상태)
-					if (i - 1 >= 0 && i - 1 < width) 
+					//j -1 있는 경우 (= top은 가능하지만, right가 불가능한 상태)
+					if (j - 1 >= 0 && j - 1 < height)
 					{
-						if (getState(i -1, 0) == true) 
+						if (getState(0, j-1) == true)
 						{
 							count++;
 						}
 					}
-					//i -1 없는 경우
-					else 
+					//j -1 없는 경우
+					else
 					{
-						//j+1 은 가능한 경우
-						if (j + 1 >= 0 && j + 1 < height) 
+						//i+1 은 가능한 경우
+						if (i + 1 >= 0 && i + 1 < width)
 						{
-							if (getState(width -1, j+1) == true) 
+							if (getState(i +1, height -1) == true)
 							{
 								count++;
 							}
 						}
-						//j+1 도 불가능한 경우
-						else 
+						//i+1 도 불가능한 경우
+						else
 						{
-							if (getState(width -1, 0) == true) 
+							if (getState(0, height -1) == true)
 							{
 								count++;
 							}
@@ -223,68 +224,68 @@ void LifeGame::update()
 					}
 				}
 				//left
-				if (i >= 0 && i < width && j - 1 >= 0 && j - 1 < height)
+				if (j >= 0 && j < height && i - 1 >= 0 && i - 1 < width)
 				{
-					if (getState(i, j - 1) == true)
+					if (getState(i-1, j) == true)
 					{
 						count++;
 					}
 				}
-				else 
+				else
 				{
-					if (getState(i, height - 1) == true) 
+					if (getState(width-1, j) == true)
 					{
 						count++;
 					}
 				}
 				//right
-				if (i >= 0 && i < width && j + 1 >= 0 && j + 1 < height)
+				if (j >= 0 && j < height && i + 1 >= 0 && i + 1 < width)
 				{
-					if (getState(i, j + 1) == true)
+					if (getState(i+1, j) == true)
 					{
 						count++;
 					}
 				}
-				else 
+				else
 				{
-					if (getState(i, 0) == true) 
+					if (getState(0, j) == true)
 					{
 						count++;
 					}
 				}
 				//down_left
-				if (i + 1 >= 0 && i + 1 < width && j - 1 >= 0 && j - 1 < height)
+				if (j + 1 >= 0 && j + 1 < height && i - 1 >= 0 && i - 1 < width)
 				{
-					if (getState(i + 1, j - 1) == true)
+					if (getState(i-1, j+1) == true)
 					{
 						count++;
 					}
 				}
-				else 
+				else
 				{
-					// i+1 은 되는 경우
-					if (i + 1 >= 0 && i + 1 < width) 
+					// j+1 은 되는 경우
+					if (j + 1 >= 0 && j + 1 < height)
 					{
-						if (getState(i +1, height -1) == true) 
+						if (getState(width -1, j+1) == true)
 						{
 							count++;
 						}
 					}
-					// i+1 은 안되는 경우
-					else 
+					// j+1 은 안되는 경우
+					else
 					{
-						//j-1 은 되는 경우
-						if (j - 1 >= 0 && j - 1 < height) 
+						//i-1 은 되는 경우
+						if (i - 1 >= 0 && i - 1 < width)
 						{
-							if (getState(0, j-1) == true) 
+							if (getState(i-1, 0) == true)
 							{
 								count++;
 							}
 						}
-						//j-1 도 안되는 경우
-						else 
+						//i-1 도 안되는 경우
+						else
 						{
-							if (getState(0, height -1) == true) 
+							if (getState(width -1, 0) == true)
 							{
 								count++;
 							}
@@ -292,53 +293,53 @@ void LifeGame::update()
 					}
 				}
 				//down
-				if (i + 1 >= 0 && i + 1 < width && j >= 0 && j < height)
+				if (j + 1 >= 0 && j + 1 < height && i >= 0 && i < width)
 				{
-					if (getState(i + 1, j) == true)
+					if (getState(i, j+1) == true)
 					{
 						count++;
 					}
 				}
-				else 
+				else
 				{
-					if (getState(0, j) == true) 
+					if (getState(i, 0) == true)
 					{
 						count++;
 					}
 				}
 				//down_right
-				if (i + 1 >= 0 && i + 1 < width && j + 1 >= 0 && j + 1 < height)
+				if (j + 1 >= 0 && j + 1 < height && i + 1 >= 0 && i + 1 < width)
 				{
-					if (getState(i + 1, j + 1) == true)
+					if (getState(i+1, j+1) == true)
 					{
 						count++;
 					}
 				}
-				else 
+				else
 				{
-					//i+1 은 되는 경우
-					if (i + 1 >= 0 && i + 1 < width) 
+					//j+1 은 되는 경우
+					if (j + 1 >= 0 && j + 1 < height)
 					{
-						if (getState(i+1, 0) == true) 
+						if (getState(0, j+1) == true)
 						{
 							count++;
 						}
 					}
-					//i+1 은 안되는 경우
-					else 
+					//j+1 은 안되는 경우
+					else
 					{
-						//j+1은 되는 경우
-						if (j + 1 >= 0 && j + 1 < height) 
+						//i+1은 되는 경우
+						if (i + 1 >= 0 && i + 1 < width)
 						{
-							if (getState(0, j+1) == true) 
+							if (getState(i+1, 0) == true)
 							{
 								count++;
 							}
 						}
-						//j+1도 안되는 경우
-						else 
+						//i+1도 안되는 경우
+						else
 						{
-							if (getState(0, 0) == true) 
+							if (getState(0,0) == true)
 							{
 								count++;
 							}
@@ -348,23 +349,23 @@ void LifeGame::update()
 				//check
 				if (count <= 1)
 				{
-					next_cells[i][j] = false;
+					next_cells[j][i] = false;
 				}
 				if (count >= 4)
 				{
-					next_cells[i][j] = false;
+					next_cells[j][i] = false;
 				}
 				if (count >= 2 && count <= 3)
 				{
-					next_cells[i][j] = true;
+					next_cells[j][i] = true;
 				}
 			}
-//=================================================================================================
+			//=================================================================================================
 			//current_cells[i][j] is dead
-			if (getState(i, j) == false) 
+			if (getState(i, j) == false)
 			{
 				//top_left
-				if (i - 1 >= 0 && i - 1 < width && j - 1 >= 0 && j - 1 < height)
+				if (j - 1 >= 0 && j - 1 < height && i - 1 >= 0 && i - 1 < width)
 				{
 					if (getState(i - 1, j - 1) == true)
 					{
@@ -373,27 +374,27 @@ void LifeGame::update()
 				}
 				else
 				{
-					//i-1은 범위에 있는 경우
-					if (i - 1 >= 0 && i - 1 < width)
+					//j-1은 범위에 있는 경우
+					if (j - 1 >= 0 && j - 1 < height)
 					{
 						//top까지는 갈 수 있는데 left가 범위를 벗어나는 경우
-						if (getState(i - 1, height - 1) == true)
+						if (getState(width - 1, j - 1) == true)
 						{
 							countD++;
 						}
 					}
-					//i-1은 범위에 없는 경우
+					//j-1은 범위에 없는 경우
 					else
 					{
-						//j-1은 범위에 있는 경우
-						if (j - 1 >= 0 && j - 1 < height)
+						//i-1은 범위에 있는 경우
+						if (i - 1 >= 0 && i - 1 < width)
 						{
-							if (getState(width - 1, j - 1) == true)
+							if (getState(i - 1, height - 1) == true)
 							{
 								countD++;
 							}
 						}
-						//j-1은 범위에 없는 경우
+						//i-1은 범위에 없는 경우
 						else
 						{
 							if (getState(width - 1, height - 1) == true)
@@ -404,61 +405,7 @@ void LifeGame::update()
 					}
 				}
 				//top
-				if (i - 1 >= 0 && i - 1 < width && j >= 0 && j < height)
-				{
-					if (getState(i - 1, j) == true)
-					{
-						countD++;
-					}
-				}
-				else
-				{
-					if (getState(width - 1, j) == true)
-					{
-						countD++;
-					}
-				}
-				//top_right
-				if (i - 1 >= 0 && i - 1 < width && j + 1 >= 0 && j + 1 < height)
-				{
-					if (getState(i - 1, j + 1) == true)
-					{
-						countD++;
-					}
-				}
-				else
-				{
-					//i -1 있는 경우 (= top은 가능하지만, right가 불가능한 상태)
-					if (i - 1 >= 0 && i - 1 < width)
-					{
-						if (getState(i - 1, 0) == true)
-						{
-							countD++;
-						}
-					}
-					//i -1 없는 경우
-					else
-					{
-						//j+1 은 가능한 경우
-						if (j + 1 >= 0 && j + 1 < height)
-						{
-							if (getState(width - 1, j + 1) == true)
-							{
-								countD++;
-							}
-						}
-						//j+1 도 불가능한 경우
-						else
-						{
-							if (getState(width - 1, 0) == true)
-							{
-								countD++;
-							}
-						}
-					}
-				}
-				//left
-				if (i >= 0 && i < width && j - 1 >= 0 && j - 1 < height)
+				if (j - 1 >= 0 && j - 1 < height && i >= 0 && i < width)
 				{
 					if (getState(i, j - 1) == true)
 					{
@@ -472,23 +419,8 @@ void LifeGame::update()
 						countD++;
 					}
 				}
-				//right
-				if (i >= 0 && i < width && j + 1 >= 0 && j + 1 < height)
-				{
-					if (getState(i, j + 1) == true)
-					{
-						countD++;
-					}
-				}
-				else
-				{
-					if (getState(i, 0) == true)
-					{
-						countD++;
-					}
-				}
-				//down_left
-				if (i + 1 >= 0 && i + 1 < width && j - 1 >= 0 && j - 1 < height)
+				//top_right
+				if (j - 1 >= 0 && j - 1 < height && i + 1 >= 0 && i + 1 < width)
 				{
 					if (getState(i + 1, j - 1) == true)
 					{
@@ -497,26 +429,26 @@ void LifeGame::update()
 				}
 				else
 				{
-					// i+1 은 되는 경우
-					if (i + 1 >= 0 && i + 1 < width)
+					//j -1 있는 경우 (= top은 가능하지만, right가 불가능한 상태)
+					if (j - 1 >= 0 && j - 1 < height)
 					{
-						if (getState(i + 1, height - 1) == true)
+						if (getState(0, j - 1) == true)
 						{
 							countD++;
 						}
 					}
-					// i+1 은 안되는 경우
+					//j -1 없는 경우
 					else
 					{
-						//j-1 은 되는 경우
-						if (j - 1 >= 0 && j - 1 < height)
+						//i+1 은 가능한 경우
+						if (i + 1 >= 0 && i + 1 < width)
 						{
-							if (getState(0, j - 1) == true)
+							if (getState(i + 1, height - 1) == true)
 							{
 								countD++;
 							}
 						}
-						//j-1 도 안되는 경우
+						//i+1 도 불가능한 경우
 						else
 						{
 							if (getState(0, height - 1) == true)
@@ -526,8 +458,23 @@ void LifeGame::update()
 						}
 					}
 				}
-				//down
-				if (i + 1 >= 0 && i + 1 < width && j >= 0 && j < height)
+				//left
+				if (j >= 0 && j < height && i - 1 >= 0 && i - 1 < width)
+				{
+					if (getState(i - 1, j) == true)
+					{
+						countD++;
+					}
+				}
+				else
+				{
+					if (getState(width - 1, j) == true)
+					{
+						countD++;
+					}
+				}
+				//right
+				if (j >= 0 && j < height && i + 1 >= 0 && i + 1 < width)
 				{
 					if (getState(i + 1, j) == true)
 					{
@@ -541,8 +488,62 @@ void LifeGame::update()
 						countD++;
 					}
 				}
+				//down_left
+				if (j + 1 >= 0 && j + 1 < height && i - 1 >= 0 && i - 1 < width)
+				{
+					if (getState(i - 1, j + 1) == true)
+					{
+						countD++;
+					}
+				}
+				else
+				{
+					// j+1 은 되는 경우
+					if (j + 1 >= 0 && j + 1 < height)
+					{
+						if (getState(width - 1, j + 1) == true)
+						{
+							countD++;
+						}
+					}
+					// j+1 은 안되는 경우
+					else
+					{
+						//i-1 은 되는 경우
+						if (i - 1 >= 0 && i - 1 < width)
+						{
+							if (getState(i - 1, 0) == true)
+							{
+								countD++;
+							}
+						}
+						//i-1 도 안되는 경우
+						else
+						{
+							if (getState(width - 1, 0) == true)
+							{
+								countD++;
+							}
+						}
+					}
+				}
+				//down
+				if (j + 1 >= 0 && j + 1 < height && i >= 0 && i < width)
+				{
+					if (getState(i, j + 1) == true)
+					{
+						countD++;
+					}
+				}
+				else
+				{
+					if (getState(i, 0) == true)
+					{
+						countD++;
+					}
+				}
 				//down_right
-				if (i + 1 >= 0 && i + 1 < width && j + 1 >= 0 && j + 1 < height)
+				if (j + 1 >= 0 && j + 1 < height && i + 1 >= 0 && i + 1 < width)
 				{
 					if (getState(i + 1, j + 1) == true)
 					{
@@ -551,26 +552,26 @@ void LifeGame::update()
 				}
 				else
 				{
-					//i+1 은 되는 경우
-					if (i + 1 >= 0 && i + 1 < width)
+					//j+1 은 되는 경우
+					if (j + 1 >= 0 && j + 1 < height)
 					{
-						if (getState(i + 1, 0) == true)
+						if (getState(0, j + 1) == true)
 						{
 							countD++;
 						}
 					}
-					//i+1 은 안되는 경우
+					//j+1 은 안되는 경우
 					else
 					{
-						//j+1은 되는 경우
-						if (j + 1 >= 0 && j + 1 < height)
+						//i+1은 되는 경우
+						if (i + 1 >= 0 && i + 1 < width)
 						{
-							if (getState(0, j + 1) == true)
+							if (getState(i + 1, 0) == true)
 							{
 								countD++;
 							}
 						}
-						//j+1도 안되는 경우
+						//i+1도 안되는 경우
 						else
 						{
 							if (getState(0, 0) == true)
@@ -583,25 +584,26 @@ void LifeGame::update()
 				//check
 				if (countD == 3)
 				{
-					next_cells[i][j] = true;
+					next_cells[j][i] = true;
 				}
 			}
-			//다음 상태로 변경
-			for (int i = 0; i < width; i++) 
-			{
-				for (int j = 0; j < height; j++) 
-				{
-					current_cells[i][j] = next_cells[i][j];
-				}
-			}
-			//next_cells 초기화
-			for (int i = 0; i < width; i++)
-			{
-				for (int j = 0; j < height; j++)
-				{
-					next_cells[i][j] = false;
-				}
-			}
+		}
+	}
+
+	//다음 상태로 변경
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			current_cells[j][i] = next_cells[j][i];
+		}
+	}
+	//next_cells 초기화
+	for (int j = 0; j < height; j++)
+	{
+		for (int i = 0; i < width; i++)
+		{
+			next_cells[j][i] = false;
 		}
 	}
 }
@@ -610,9 +612,9 @@ void LifeGame::update()
 ostream &operator <<(ostream &os, const LifeGame &game)
 {
 	cout << "The current game state is : " << endl << endl;
-	for (int i = 0; i < game.width; i++)
+	for (int j = 0; j < game.height; j++)
 	{
-		for (int j = 0; j < game.height; j++)
+		for (int i = 0; i < game.width; i++)
 		{
 			if (game.getState(i, j) == true)
 			{
