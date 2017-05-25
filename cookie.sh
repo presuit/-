@@ -142,6 +142,23 @@ sortArr()
 		index_a=`expr $index_a + 1`
 	done
 
+	#..추가하기
+	declare -a arr_push=()
+
+	for((push = 0; push < ${#arr[@]}; push++))
+	do
+		arr_push[$push]=${arr[$push]}
+	done
+	
+	arr[0]=".."
+	push__=1	
+
+	for((push_=0; push_ < ${#arr_push[@]}; push_++))
+	do
+		arr[$push__]=${arr_push[$push_]}
+		push__=`expr $push__ + 1`
+	done
+
 	#조건에 따라 분기 
 	case "$1" in
 		pre) for((index_pre = 0; index_pre < ${#arr[@]}; index_pre++))
@@ -185,8 +202,14 @@ PrintSide()
 			tput cup `expr $indx_pre + 2` 1
 			echo [34m"...."
 		else
-			tput cup `expr $indx_pre + 2` 1
-			echo [34m"${arrPre[$indx_pre]}"
+			if [ ${arrPre[$indx_pre]} = ".." ]
+			then
+				tput cup `expr $indx_pre + 2` 1
+				echo [31m"${arrPre[$indx_pre]}"
+			else
+				tput cup `expr $indx_pre + 2` 1
+				echo [34m"${arrPre[$indx_pre]}"
+			fi
 		fi
 	
 	elif [ "`stat -c %F ${arrPre[$indx_pre]}`" = "일반 파일" ] || [ "`stat -c %F ${arrPre[$indx_pre]}`" = "일반 빈 파일" ]
@@ -222,20 +245,48 @@ PrintCenter()
   col=21
   count=0
 
-  for((center = 0; center < ${#arrNow[@]}; center++))
+  for((center = $1; center < $2; center++))
   do
 	if [ "`stat -c %F ${arrNow[$center]}`" = "디렉토리" ]
 	then
-		tput cup $row $col
-		echo [34m"     __"
-		tput cup `expr $row + 1` $col
-		echo [34m"/---/ |"
-		tput cup `expr $row + 2` $col
-		echo [34m"|  d  |"
-		tput cup `expr $row + 3` $col
-		echo [34m"-------"
-		tput cup `expr $row + 4` $col
-		echo [34m"${arrNow[$center]}"
+		if [ ${arrNow[$center]} = ".." ]
+		then
+			tput cup $row $col
+                        echo [31m"     __"
+                        tput cup `expr $row + 1` $col
+                        echo [31m"/---/ |"
+                        tput cup `expr $row + 2` $col
+                        echo [31m"|  d  |"
+                        tput cup `expr $row + 3` $col
+                        echo [31m"-------"
+                        tput cup `expr $row + 4` $col
+			
+			if [ ${#arrNow[$center]} -gt 10 ]
+			then
+				echo [31m"...."
+			else
+                        	echo [31m"${arrNow[$center]}"
+			fi
+
+		else
+			tput cup $row $col
+			echo [34m"     __"
+			tput cup `expr $row + 1` $col
+			echo [34m"/---/ |"
+			tput cup `expr $row + 2` $col
+			echo [34m"|  d  |"
+			tput cup `expr $row + 3` $col
+			echo [34m"-------"
+			tput cup `expr $row + 4` $col
+			
+			if [ ${#arrNow[$center]} -gt 10 ]
+                        then
+                                echo [34m"...."
+                        else
+                                echo [34m"${arrNow[$center]}"
+                        fi
+
+		fi
 	elif [ "`stat -c %F ${arrNow[$center]}`" = "일반 파일" ] || [ "`stat -c %F ${arrNow[$center]}`" = "일반 빈 파일" ]
 	then
 		if [ "`stat -c %a ${arrNow[$center]}`" -eq 775 ]
@@ -249,7 +300,14 @@ PrintCenter()
                         tput cup `expr $row + 3` $col
                         echo [31m"-------"
                         tput cup `expr $row + 4` $col
-                        echo [31m"${arrNow[$center]}"
+                        
+			if [ ${#arrNow[$center]} -gt 10 ]
+                        then
+                                echo [31m"...."
+                        else
+                                echo [31m"${arrNow[$center]}"
+                        fi
+
 		else
 			tput cup $row $col
 			echo [0m"_______"
@@ -260,7 +318,14 @@ PrintCenter()
 			tput cup `expr $row + 3` $col
 			echo [0m"-------"
 			tput cup `expr $row + 4` $col
-			echo [0m"${arrNow[$center]}"
+			
+			if [ ${#arrNow[$center]} -gt 10 ]
+                        then
+                                echo [0m"...."
+                        else
+                                echo [0m"${arrNow[$center]}"
+                        fi
+
 		fi
 	else
 		tput cup $row $col
@@ -272,7 +337,14 @@ PrintCenter()
 		tput cup `expr $row + 3` $col
 		echo [32m"-------"
 		tput cup `expr $row + 4` $col
-		echo [32m"${arrNow[$center]}"
+		
+		if [ ${#arrNow[$center]} -gt 10 ]
+                then
+                     echo [32m"...."
+                else
+               	     echo [32m"${arrNow[$center]}"
+                fi
+
 	fi
 	
 	count=`expr $count + 1`
@@ -288,25 +360,97 @@ PrintCenter()
   
 }
 
-tput cup 1 0
+PrintInfo()
+{
+	tput cup 28 1
+	echo [0m"*****************************************Information******************************************"
+
+	#파일 이름
+	tput cup 29 20
+	echo [0m"file name : $1"
+	
+	#파일 종류
+	tput cup 30 20
+	if [ "`stat -c %F $1`" = "디렉토리" ]
+	then
+		echo [34m"file type : `stat -c %F $1`"
+	elif [ "`stat -c %F $1`" = "일반 파일" ] || [ "`stat -c %F $1`" = "일반 빈 파일" ]
+	then
+		echo [0m"file type : `stat -c %F $1`"
+	else
+		echo [32m"file type : `stat -c %F $1`"
+	fi
+	
+	#파일 사이즈
+	tput cup 31 20
+	echo [0m"file size : `stat -c %s $1`"
+	
+	#파일 생성 시간
+	tput cup 32 20
+	echo [0m"creation time : `stat -c %w $1`"
+
+	#파일 권한
+	tput cup 33 20
+	echo [0m"permission : `stat -c %a $1`"
+
+	#절대 경로
+	tput cup 34 20
+	echo [0m"absolute path : `pwd`"
+	
+}
+
+PrintInfo_()
+{
+	tput cup 35 1
+	echo [0m"*****************************************Information******************************************"
+	
+	total=0
+	dir=0
+	file=0
+	Sfile=0
+	sum=0
+	
+	for((sfile = 0; sfile < ${#arrNow[@]}; sfile++))
+	do
+		Fsize=`stat -c %s ${arrNow[$sfile]}`
+		sum=`expr $sum + $Fsize`
+	done
+
+	tput cup 36 20 
+	echo [0m"${#arrNow[@]} total  $lastdir dir  $lastnorfile file  `expr ${#arrNow[@]} - $lastnorfile` Sfile  $sum sum"
+}
+
+Update()
+{
+PrintSide
+PrintCenter 0 25
+PrintInfo ${arrNow[0]}
+PrintInfo_
+}
+
+#바깥쪽 프레임
+ tput cup 1 0
 echo [0m"================================================================================================"
 
 
 for((side = 2; side < 37; side++))
 do
-	tput cup $side 0
-	echo [0m"|"
-	tput cup $side 20
-	echo [0m"|"
-	tput cup $side 95
-	echo [0m"|"
+        tput cup $side 0
+        echo [0m"|"
+
+        if [ $side -lt 28 ]
+        then
+                tput cup $side 20
+                echo [0m"|"
+        fi
+
+        tput cup $side 95
+        echo [0m"|"
 done
 
 tput cup 37 0
 echo [0m"================================================================================================"
 
 
-PrintSide
-PrintCenter
-
+Update
 tput cup 38 0
