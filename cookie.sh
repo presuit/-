@@ -263,7 +263,14 @@ PrintCenter()
 			
 			if [ ${#arrNow[$center]} -gt 10 ]
 			then
-				echo [31m"...."
+				declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$center]}`)
+				
+				NAME=$(for((name = 0; name < 10; name++))
+				do
+					printf "${Name[$name]}"	
+				done
+				)
+				echo [31m"$NAME"
 			else
                         	echo [31m"${arrNow[$center]}"
 			fi
@@ -281,7 +288,14 @@ PrintCenter()
 			
 			if [ ${#arrNow[$center]} -gt 10 ]
                         then
-                                echo [34m"...."
+                        	declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$center]}`)
+
+                                NAME=$(for((name = 0; name < 10; name++))
+                                do
+                                        printf "${Name[$name]}"  
+                                done
+                                )
+                                echo [34m"$NAME"
                         else
                                 echo [34m"${arrNow[$center]}"
                         fi
@@ -303,7 +317,15 @@ PrintCenter()
                         
 			if [ ${#arrNow[$center]} -gt 10 ]
                         then
-                                echo [31m"...."
+                       		 declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$center]}`)
+
+                                 NAME=$(for((name = 0; name < 10; name++))
+                                 do
+                                        printf "${Name[$name]}"  
+                                 done
+                                 )
+                                 echo [31m"$NAME"
+
                         else
                                 echo [31m"${arrNow[$center]}"
                         fi
@@ -321,7 +343,15 @@ PrintCenter()
 			
 			if [ ${#arrNow[$center]} -gt 10 ]
                         then
-                                echo [0m"...."
+                                declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$center]}`)
+
+                                NAME=$(for((name = 0; name < 10; name++))
+                                do
+                                        printf "${Name[$name]}"  
+                                done
+                                )
+                                echo [0m"$NAME"
+
                         else
                                 echo [0m"${arrNow[$center]}"
                         fi
@@ -340,13 +370,22 @@ PrintCenter()
 		
 		if [ ${#arrNow[$center]} -gt 10 ]
                 then
-                     echo [32m"...."
+                     declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$center]}`)
+
+                      NAME=$(for((name = 0; name < 10; name++))
+                      	     do
+                                printf "${Name[$name]}"  
+                             done
+                            )
+                     echo [32m"$NAME"
+
                 else
                	     echo [32m"${arrNow[$center]}"
                 fi
 
 	fi
-	
+
+
 	count=`expr $count + 1`
 	if [ $count -ge 5 ]
 	then
@@ -357,7 +396,146 @@ PrintCenter()
 		col=`expr $col + 15`
 	fi
   done
-  
+
+	#rev
+  	tput rev
+
+        if [ "`stat -c %F ${arrNow[$5]}`" = "디렉토리" ]
+        then
+                if [ ${arrNow[$5]} = ".." ]
+                then
+                        tput cup $3 $4
+                        echo [31m"     __"
+                        tput cup `expr $3 + 1` $4
+                        echo [31m"/---/ |"
+                        tput cup `expr $3 + 2` $4
+                        echo [31m"|  d  |"
+                        tput cup `expr $3 + 3` $4
+                        echo [31m"-------"
+                        tput cup `expr $3 + 4` $4
+
+                        if [ ${#arrNow[$5]} -gt 10 ]
+                        then
+                                declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$5]}`)
+
+                                NAME=$(for((name = 0; name < 10; name++))
+                                do
+                                        printf "${Name[$name]}" 
+                                done
+                                )
+                                echo [31m"$NAME"
+                        else
+                                echo [31m"${arrNow[$5]}"
+                        fi
+                 else
+                        tput cup $3 $4
+                        echo [34m"     __"
+                        tput cup `expr $3 + 1` $4
+                        echo [34m"/---/ |"
+                        tput cup `expr $3 + 2` $4
+                        echo [34m"|  d  |"
+                        tput cup `expr $3 + 3` $4
+                        echo [34m"-------"
+                        tput cup `expr $3 + 4` $4
+
+                        if [ ${#arrNow[$5]} -gt 10 ]
+                        then
+                                declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$5]}`)
+
+                                NAME=$(for((name = 0; name < 10; name++))
+                                do
+                                        printf "${Name[$name]}"  
+                                done
+                                )
+                                echo [34m"$NAME"
+                        else
+                                echo [34m"${arrNow[$5]}"
+                        fi
+
+                fi
+        elif [ "`stat -c %F ${arrNow[$5]}`" = "일반 파일" ] || [ "`stat -c %F ${arrNow[$5]}`" = "일반 빈 파일" ]
+                then
+                        if [ "`stat -c %a ${arrNow[$5]}`" -eq 775 ]
+                        then
+                                tput cup $3 $4
+                                echo [31m"_______"
+                                tput cup `expr $3 + 1` $4
+                                echo [31m"|     |"
+                                tput cup `expr $3 + 2` $4
+                                echo [31m"|  x  |"
+                                tput cup `expr $3 + 3` $4
+                                echo [31m"-------"
+                                tput cup `expr $3 + 4` $4
+
+                                if [ ${#arrNow[$5]} -gt 10 ]
+                                then
+                                         declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$5]}`)
+
+                                        NAME=$(for((name = 0; name < 10; name++))
+                                        do
+                                                printf "${Name[$name]}"  
+                                        done
+                                         )
+                                        echo [31m"$NAME"
+
+                                else
+                                        echo [31m"${arrNow[$5]}"
+                                fi
+                        else
+                                tput cup $3 $4
+                                echo [0m"_______"
+                                tput cup `expr $3 + 1` $4
+                                echo [0m"|     |"
+                                tput cup `expr $3 + 2` $4
+                                echo [0m"|  o  |"
+                                tput cup `expr $3 + 3` $4
+                                echo [0m"-------"
+                                tput cup `expr $3 + 4` $4
+
+                                if [ ${#arrNow[$5]} -gt 10 ]
+                                then
+                                        declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$5]}`)
+
+                                        NAME=$(for((name = 0; name < 10; name++))
+                                        do
+                                                printf "${Name[$name]}"  
+                                        done
+                                         )
+                                        echo [0m"$NAME"
+
+                                else
+                                        echo [0m"${arrNow[$5]}"
+                                fi
+
+                fi
+        else
+                tput cup $3 $4
+                echo [32m"_______"
+                tput cup `expr $3 + 1` $4
+                echo [32m"|     |"
+                tput cup `expr $3 + 2` $4
+                echo [32m"|  s  |"
+                tput cup `expr $3 + 3` $4
+                echo [32m"-------"
+                tput cup `expr $3 + 4` $4
+
+                if [ ${#arrNow[$5]} -gt 10 ]
+                then
+                     declare -a Name=(`sed 's/./&\n/g' <<< ${arrNow[$5]}`)
+
+                      NAME=$(for((name = 0; name < 10; name++))
+                             do
+                                printf "${Name[$name]}"  
+                             done
+                            )
+                     echo [32m"$NAME"
+
+                else
+                     echo [32m"${arrNow[$5]}"
+                fi
+
+        fi
+	tput sgr0
 }
 
 PrintInfo()
@@ -422,10 +600,29 @@ PrintInfo_()
 
 Update()
 {
-PrintSide
-PrintCenter 0 25
-PrintInfo ${arrNow[0]}
-PrintInfo_
+	I=0
+	J=0	
+	Urow=2
+	Ucol=21
+  while true
+  do		
+	read -r -sn1 t
+	case $t in
+		A)#up
+		  if [  ]			
+
+		  if [ `expr $J \* 5 + $I` -ge 0 ] && [ `expr $J \* 5 + $I` -lt 5 ]
+		  then
+			continue
+		  else
+			J=`expr $J + 1`
+			PrintCenter 0 25 $Urow $Ucol ${arrNow[`expr $J \* 5 + $I`]}
+		  fi 
+		B)#down
+		C)#right
+		D)#left
+	esac
+  done
 }
 
 #바깥쪽 프레임
@@ -451,6 +648,10 @@ done
 tput cup 37 0
 echo [0m"================================================================================================"
 
+PrintSide
+PrintCenter 0 25 2 21 ${arrNow[0]}
+PrintInfo ${arrNow[0]}
+PrintInfo_
 
-Update
+
 tput cup 38 0
