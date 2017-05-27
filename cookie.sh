@@ -158,6 +158,9 @@ sortArr()
 		arr[$push__]=${arr_push[$push_]}
 		push__=`expr $push__ + 1`
 	done
+		
+	lastdir=`expr $lastdir + 1`
+	lastnorfile=`expr $lastnorfile + 1`
 
 	#조건에 따라 분기 
 	case "$1" in
@@ -183,9 +186,10 @@ sortArr()
 PrintSide()
 {
   sortArr "pre"
-
+ 
+  RTB=`pwd`
   cd ../
-  
+ 
   if [ ${#arrPre[@]} -gt 20 ]
   then
 	indx__pre=20
@@ -483,13 +487,13 @@ PrintCenter()
                                 fi
                         else
                                 tput cup $3 $4
-                                echo [0m"_______"
+                                echo [37m"_______"
                                 tput cup `expr $3 + 1` $4
-                                echo [0m"|     |"
+                                echo [37m"|     |"
                                 tput cup `expr $3 + 2` $4
-                                echo [0m"|  o  |"
+                                echo [37m"|  o  |"
                                 tput cup `expr $3 + 3` $4
-                                echo [0m"-------"
+                                echo [37m"-------"
                                 tput cup `expr $3 + 4` $4
 
                                 if [ ${#arrNow[$5]} -gt 10 ]
@@ -501,10 +505,10 @@ PrintCenter()
                                                 printf "${Name[$name]}"  
                                         done
                                          )
-                                        echo [0m"$NAME"
+                                        echo [37m"$NAME"
 
                                 else
-                                        echo [0m"${arrNow[$5]}"
+                                        echo [37m"${arrNow[$5]}"
                                 fi
 
                 fi
@@ -541,6 +545,18 @@ PrintCenter()
 PrintInfo()
 {
 	tput cup 28 1
+	tput el
+	tput cup 28 95
+	echo [0m"|"
+	for((el_ = 29; el_ < 35; el_++))
+	do
+		tput cup $el_ 20
+		tput el
+		tput cup $el_ 95
+		echo [0m"|"
+	done
+
+	tput cup 28 1
 	echo [0m"*****************************************Information******************************************"
 
 	#파일 이름
@@ -575,6 +591,8 @@ PrintInfo()
 	tput cup 34 20
 	echo [0m"absolute path : `pwd`"
 	
+	
+
 }
 
 PrintInfo_()
@@ -595,36 +613,156 @@ PrintInfo_()
 	done
 
 	tput cup 36 20 
-	echo [0m"${#arrNow[@]} total  $lastdir dir  $lastnorfile file  `expr ${#arrNow[@]} - $lastnorfile` Sfile  $sum sum"
+	echo [0m"${#arrNow[@]} total  $lastdir dir  `expr $lastnorfile - $lastdir` file  `expr ${#arrNow[@]} - $lastnorfile` Sfile  $sum sum"
 }
 
 Update()
 {
+
 	I=0
 	J=0	
+	FirstIndx=0
+	LastIndx=25
 	Urow=2
 	Ucol=21
+  
+  sortArr "now"
+
+  if [ $LastIndx -ge ${#arrNow[@]} ]
+  then
+	LastIndx=${#arrNow[@]}
+  fi  
+
+	echo "LastIndx : $LastIndx"
+
+  PrintSide
+  PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+  PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+  PrintInfo_
+	
   while true
   do		
 	read -r -sn1 t
 	case $t in
 		A)#up
-		  if [  ]			
-
 		  if [ `expr $J \* 5 + $I` -ge 0 ] && [ `expr $J \* 5 + $I` -lt 5 ]
 		  then
 			continue
 		  else
-			J=`expr $J + 1`
-			PrintCenter 0 25 $Urow $Ucol ${arrNow[`expr $J \* 5 + $I`]}
-		  fi 
+			J=`expr $J - 1`
+			if [ `expr $J \* 5 + $I` -lt $FirstIndx ] && [ `expr $J \* 5 + $I` -ge 0 ]
+			then
+
+				FirstIndx=`expr $FirstIndx - 5`
+				LastIndx=`expr $LastIndx - 5`
+			
+				if [ $FirstIndx -lt 0 ]
+				then
+					FirstIndx=0
+				fi
+
+                                if [ `expr $LastIndx % 5` -ne 0 ]
+                                then
+                                        FillUp=`expr 5 - $LastIndx % 5`
+                                        LastIndx=`expr $LastIndx + $FillUp`
+                                        
+                                fi
+				
+				tput clear
+				SetFrame
+				PrintSide                                
+                                PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+				PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+				PrintInfo_
+			else
+				if [ $Urow -gt 1 ] && [ $Urow -le 22 ]
+				then
+					Urow=`expr $Urow - 5`
+					PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+					PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+				else
+					continue
+				fi
+			fi
+		  fi ;;
 		B)#down
+                  if [ `expr $J \* 5 + $I` -ge `expr ${#arrNow[@]} - 5` ] && [ `expr $J \* 5 + $I` -le `expr ${#arrNow[@]} - 1` ]
+                  then
+                        continue
+                  else
+			J=`expr $J + 1`
+			if [ `expr $J \* 5 + $I` -ge $LastIndx ] && [ `expr $J \* 5 + $I` -lt ${#arrNow[@]} ]
+			then
+				FirstIndx=`expr $FirstIndx + 5`
+				LastIndx=`expr $LastIndx + 5`
+
+				if [ $LastIndx -gt ${#arrNow[@]} ]
+				then
+					LastIndx=${#arrNow[@]}
+				fi
+
+				tput clear
+				SetFrame
+				PrintSide
+				PrintCenter $FirstIndx $LastIndx  $Urow $Ucol `expr $J \* 5 + $I`
+				PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+				PrintInfo_
+			else
+				if [ `expr $J \* 5 + $I` -lt ${#arrNow[@]} ]
+				then
+                               	 	if [ $Urow -ge 2 ] && [ $Urow -lt 22 ]
+                               	 	then
+                                        	Urow=`expr $Urow + 5`
+                                        	PrintCenter $FirstIndx $LastIndx  $Urow $Ucol `expr $J \* 5 + $I`
+                                        	PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+                                	fi
+				else
+					J=`expr $J - 1`
+					continue
+				fi
+			fi
+                  fi ;;
 		C)#right
+		  if [ $I -ge 0 ] && [ $I -lt 4 ]
+		  then
+			if [ $Ucol -ge 21 ] && [ $Ucol -lt 81 ]
+			then
+				I=`expr $I + 1`
+				if [ `expr $J \* 5 + $I` -ge ${#arrNow[@]} ]
+				then
+					I=`expr $I - 1`
+					continue
+				else
+					Ucol=`expr $Ucol + 15`
+					PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+					PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+				fi
+			else	
+				continue
+			fi
+		  else
+		  	continue
+		  fi ;;
 		D)#left
+		  if [ $I -gt 0 ] && [ $I -le 4 ]
+		  then
+			if [ $Ucol -gt 21 ] && [ $Ucol -le 81 ]
+			then
+		  		I=`expr $I - 1`
+				Ucol=`expr $Ucol - 15`
+		 		PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+				PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+			else
+				continue
+			fi
+		  else
+			continue
+		  fi ;;
 	esac
   done
 }
-
+SetFrame()
+{
 #바깥쪽 프레임
  tput cup 1 0
 echo [0m"================================================================================================"
@@ -647,11 +785,11 @@ done
 
 tput cup 37 0
 echo [0m"================================================================================================"
-
-PrintSide
-PrintCenter 0 25 2 21 ${arrNow[0]}
-PrintInfo ${arrNow[0]}
-PrintInfo_
-
+}
+SetFrame
+Update
 
 tput cup 38 0
+
+
+
