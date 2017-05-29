@@ -204,7 +204,14 @@ PrintSide()
 		if [ ${#arrPre[$indx_pre]} -gt 10 ]
 		then
 			tput cup `expr $indx_pre + 2` 1
-			echo [34m"...."
+			declare -a SName=(`sed 's/./&\n/g' <<< ${arrPre[$indx_pre]}`)
+
+                        SNAME=$(for((sname = 0; sname < 10; sname++))
+                               do
+                                  printf "${SName[$sname]}"  
+                               done
+                                )
+                                echo [34m"$SNAME"
 		else
 			if [ ${arrPre[$indx_pre]} = ".." ]
 			then
@@ -221,7 +228,13 @@ PrintSide()
 		if [ ${#arrPre[$indx_pre]} -gt 10 ]
 		then
 			tput cup `expr $indx_pre + 2` 1
-			echo [0m"...."
+			declare -a SName=(`sed 's/./&\n/g' <<< ${arrPre[$indx_pre]}`)
+                        SNAME=$(for((sname = 0; sname < 10; sname++))
+                               do
+                                  printf "${SName[$sname]}"  
+                               done
+                                )
+                                echo [34m"$SNAME"
 		else
 			tput cup `expr $indx_pre + 2` 1
 			echo [0m"${arrPre[$indx_pre]}"
@@ -230,7 +243,14 @@ PrintSide()
 		if [ ${#arrPre[$indx_pre]} -gt 10 ]
 		then
 			tput cup `expr $indx_pre + 2` 1
-			echo [32m "...."
+			declare -a SName=(`sed 's/./&\n/g' <<< ${arrPre[$indx_pre]}`)
+                        SNAME=$(for((sname = 0; sname < 10; sname++))
+                               do
+                                  printf "${SName[$sname]}"  
+                               done
+                                )
+                                echo [34m"$SNAME"
+
 		else
 			tput cup `expr $indx_pre + 2` 1
 			echo [32m"${arrPre[$indx_pre]}"
@@ -641,7 +661,9 @@ Update()
   PrintInfo_
 	
   while true
-  do		
+  do
+	tput cup 38 0
+	echo "I : $I , J : $J Urow : $Urow Ucol : $Ucol"		
 	read -r -sn1 t
 	case $t in
 		A)#up
@@ -723,41 +745,120 @@ Update()
 			fi
                   fi ;;
 		C)#right
-		  if [ $I -ge 0 ] && [ $I -lt 4 ]
-		  then
-			if [ $Ucol -ge 21 ] && [ $Ucol -lt 81 ]
-			then
-				I=`expr $I + 1`
-				if [ `expr $J \* 5 + $I` -ge ${#arrNow[@]} ]
+		  I=`expr $I + 1`
+		  Ucol=`expr $Ucol + 15
+`
+		 #element not in arrNow
+		  if [ `expr $J \* 5 + $I` -ge ${#arrNow[@]} ]
+		  then 
+			#return original status
+                        I=`expr $I - 1`
+                        Ucol=`expr $Ucol - 15`
+                        continue		
+		 #in arrNow	  	
+		  else
+			#is element out of 5x5 size arr?
+                        if [ $I -ge 0 ] && [ $I -le 4 ]
+                        then
+				#in the arr
+                                PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+                                PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+                        else
+				#not in the arr but in arrNow size
+				Temp=`expr $I - 1`
+				if [ ${arrNow[`expr $J \* 5 + $Temp`]} = ${arrNow[`expr $LastIndx - 1`]} ]
 				then
-					I=`expr $I - 1`
-					continue
+                               	 	I=0
+					J=`expr $J + 1`
+                                	Ucol=21
+
+					FirstIndx=`expr $FirstIndx + 5`
+					LastIndx=`expr $LastIndx + 5`
+
+					if [ $LastIndx -gt ${#arrNow[@]} ]
+                                	then
+                                        	LastIndx=${#arrNow[@]}
+                                	fi
+
+                                	tput clear
+                                	SetFrame
+                                	PrintSide
+                                	PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+                                	PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+                                	PrintInfo_
 				else
-					Ucol=`expr $Ucol + 15`
-					PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
-					PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+					I=0
+					J=`expr $J + 1`
+					Ucol=21
+					Urow=`expr $Urow + 5`
+
+                                        PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+                                        PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+					
 				fi
-			else	
-				continue
-			fi
-		  else
-		  	continue
-		  fi ;;
+                        fi
+
+		  fi;;
+				
+			
 		D)#left
-		  if [ $I -gt 0 ] && [ $I -le 4 ]
+		  I=`expr $I - 1`
+		  Ucol=`expr $Ucol - 15`
+		  
+		  #is element in arrNow?
+		  if [ `expr $J \* 5 + $I` -lt 0 ]
 		  then
-			if [ $Ucol -gt 21 ] && [ $Ucol -le 81 ]
-			then
-		  		I=`expr $I - 1`
-				Ucol=`expr $Ucol - 15`
-		 		PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
-				PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
-			else
-				continue
-			fi
+			#no
+                        I=`expr $I + 1`
+                        Ucol=`expr $Ucol + 15`
+                        continue		
 		  else
-			continue
-		  fi ;;
+			#yes
+                        if [ $I -ge 0 ] && [ $I -le 4 ]
+                        then
+				#normal case
+                                PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+                                PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+                        else
+				#well, but, It is in arrNow index...so, we can move to previous element
+				Temp=`expr $I + 1`
+				if [ $FirstIndx -ge 5 ] && [ ${arrNow[`expr $J \* 5 + $Temp`]} = ${arrNow[$FirstIndx]} ]
+				then
+					#scroll
+					FirstIndx=`expr $FirstIndx - 5`
+					LastIndx=`expr $LastIndx - 5`
+					
+					if [ `expr $LastIndx % 5` -ne 0 ]
+					then
+                                       		FillUp=`expr 5 - $LastIndx % 5`
+                                        	LastIndx=`expr $LastIndx + $FillUp`
+					fi
+					
+					I=4
+					J=`expr $J - 1`
+					Ucol=81
+
+                                        tput clear
+                                        SetFrame
+                                        PrintSide
+                                        PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+                                        PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+                                        PrintInfo_
+				else
+                                        I=4
+                                        J=`expr $J - 1`
+                                        Ucol=81
+					Urow=`expr $Urow - 5`
+
+                                        PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
+                                        PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
+				fi
+                        fi
+
+		  fi;;
+		' ')#space
+		   tput cup 38 0
+		   echo space;;
 	esac
   done
 }
