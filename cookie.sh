@@ -327,7 +327,8 @@ PrintCenter()
 		fi
 	elif [ "`stat -c %F ${arrNow[$center]}`" = "일반 파일" ] || [ "`stat -c %F ${arrNow[$center]}`" = "일반 빈 파일" ]
 	then
-		if [ "`stat -c %a ${arrNow[$center]}`" -eq 775 ]
+		CANIEXE=(`find ${arrNow[$center]} -perm -100`)
+		if [ ${CANIEXE[0]} ]
 		then
 			tput cup $row $col
                         echo [31m"_______"
@@ -479,7 +480,8 @@ PrintCenter()
                 fi
         elif [ "`stat -c %F ${arrNow[$5]}`" = "일반 파일" ] || [ "`stat -c %F ${arrNow[$5]}`" = "일반 빈 파일" ]
                 then
-                        if [ "`stat -c %a ${arrNow[$5]}`" -eq 775 ]
+                        CANIEXE=(`find ${arrNow[$5]} -perm -100`)
+			if [ ${CANIEXE[0]} ]
                         then
                                 tput cup $3 $4
                                 echo [31m"_______"
@@ -560,6 +562,9 @@ PrintCenter()
 
         fi
 	tput sgr0
+
+	tput cup 39 0
+	echo "FirstIndx : $1 Lastindx in Printcenter : $2"
 }
 
 PrintInfo()
@@ -601,7 +606,7 @@ PrintInfo()
 	
 	#파일 생성 시간
 	tput cup 32 20
-	echo [0m"creation time : `stat -c %w $1`"
+	echo [0m"creation time : `stat -c %y $1`"
 
 	#파일 권한
 	tput cup 33 20
@@ -652,18 +657,17 @@ Update()
   then
 	LastIndx=${#arrNow[@]}
   fi  
-
-	echo "LastIndx : $LastIndx"
-
+ 		tput cup 38 0
+		echo "arrNow number is : ${#arrNow[@]} , LastIndx : $LastIndx" 
+  tput clear
+  SetFrame
   PrintSide
   PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
   PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
   PrintInfo_
 	
   while true
-  do
-	tput cup 38 0
-	echo "I : $I , J : $J Urow : $Urow Ucol : $Ucol"		
+  do		
 	read -r -sn1 t
 	case $t in
 		A)#up
@@ -820,7 +824,7 @@ Update()
                                 PrintCenter $FirstIndx $LastIndx $Urow $Ucol `expr $J \* 5 + $I`
                                 PrintInfo ${arrNow[`expr $J \* 5 + $I`]}
                         else
-				#well, but, It is in arrNow index...so, we can move to previous element
+				#well, but, It still is in arrNow index...so, we can move to previous element
 				Temp=`expr $I + 1`
 				if [ $FirstIndx -ge 5 ] && [ ${arrNow[`expr $J \* 5 + $Temp`]} = ${arrNow[$FirstIndx]} ]
 				then
@@ -857,8 +861,36 @@ Update()
 
 		  fi;;
 		' ')#space
-		   tput cup 38 0
-		   echo space;;
+		    CalcIndx=`expr $J \* 5 + $I`
+		    if [ "`stat -c %F ${arrNow[$CalcIndx]}`" = "디렉토리" ]
+		    then
+	            	if [ ${arrNow[$CalcIndx]} = ".." ]
+			then
+				cd ../
+				arrNow=()
+				arrPre=()
+				tput clear
+				Update
+			else
+				cd ./${arrNow[$CalcIndx]}
+				arrNow=()
+				arrPre=()
+                                tput clear
+                                Update
+			fi
+		    else
+			  declare -a CanIUse=(`find ${arrNow[$CalcIndx]} -perm -100`)
+			  if [ ${CanIUse[0]} ]
+			  then
+                                tput cup 38 0
+				tput el
+				./${arrNow[$CalcIndx]}
+			  else
+				tput cup 38 0
+				tput el
+				echo [32m"Sorry you can't excute the file"
+			  fi
+		    fi;;
 	esac
   done
 }
@@ -887,7 +919,6 @@ done
 tput cup 37 0
 echo [0m"================================================================================================"
 }
-SetFrame
 Update
 
 tput cup 38 0
